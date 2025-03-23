@@ -1,47 +1,39 @@
 package com.aquariux.crypto_trading_system.model.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Price implements Serializable {
-    private String id;
-    private String pair;
-    private BigDecimal bidPrice;
-    private BigDecimal askPrice;
-    private ZonedDateTime timestamp;
+    private int id;
+    @Getter
+    private String cryptoPair;
+    @Getter
+    private  BigDecimal bidPrice;
+    @Getter
+    private  BigDecimal askPrice;
+    @Getter
+    private  ZonedDateTime timestamp;
 
     public Price(String cryptoPair, BigDecimal bidPrice, BigDecimal askPrice, ZonedDateTime timestamp) {
-        this.pair = cryptoPair.toUpperCase();
+        this.cryptoPair = cryptoPair.toUpperCase();
         this.bidPrice = bidPrice;
         this.askPrice = askPrice;
         this.timestamp = timestamp;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getCryptoPair() {
-        return pair;
-    }
-
-    public BigDecimal getBidPrice() {
-        return bidPrice;
-    }
-
-    public BigDecimal getAskPrice() {
-        return askPrice;
-    }
-
-    public ZonedDateTime getTimestamp() {
-        return timestamp;
-    }
-
     @Override
     public String toString() {
         return "Price[" +
-                "cryptoPair='" + pair + '\'' +
+                "cryptoPair='" + cryptoPair + '\'' +
                 ", bidPrice=" + bidPrice +
                 ", askPrice=" + askPrice +
                 ']';

@@ -6,5 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
     public interface PriceService {
+        Map<String, Price> getPrices();
+
         Optional<Price> getPrice(String cryptoPair);
 }
