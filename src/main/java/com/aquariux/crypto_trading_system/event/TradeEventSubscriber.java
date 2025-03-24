@@ -1,41 +1,27 @@
 package com.aquariux.crypto_trading_system.event;
 
-import com.aquariux.crypto_trading_system.entity.Trade;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.aquariux.crypto_trading_system.model.entity.Trade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.stereotype.Service;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.stereotype.Component;
 
-@Service
-public class TradeEventSubscriber {
-    private static final Logger log = LoggerFactory.getLogger(TradeEventSubscriber.class);
+@Component
+public class TradeEventSubscriber implements MessageListener {
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ChannelTopic tradeSuccessTopic;
+    private static final Logger LOG = LoggerFactory.getLogger(TradeEventSubscriber.class);
 
-    @Autowired
-    public TradeEventSubscriber(RedisTemplate<String, String> redisTemplate, ChannelTopic tradeSuccessTopic) {
-        this.redisTemplate = redisTemplate;
-        this.tradeSuccessTopic = tradeSuccessTopic;
-    }
+    private final GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
 
-    public void publishTradeSuccess(Trade trade) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String tradeJson = objectMapper.writeValueAsString(trade);
-            redisTemplate.convertAndSend(tradeSuccessTopic.getTopic(), tradeJson);
-        } catch (Exception e) {
-            log.error("Lỗi khi serialize trade event", e);
-        }
-    }
-
-    public void onTradeSuccess(String message) {
-        log.info("Nhận được sự kiện giao dịch: {}", message);
-        // Parse message JSON thành Trade object nếu cần
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+        Trade trade = (Trade) serializer.deserialize(message.getBody());
+        LOG.info("📥 Received trade event: {}", trade);
+        // Sau này có thể xử lý logic nâng cao ở đây
     }
 }
+
 
 

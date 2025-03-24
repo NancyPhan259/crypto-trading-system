@@ -1,32 +1,32 @@
 package com.aquariux.crypto_trading_system.config;
 
-import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.event.TradeEventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-
 @Configuration
-public class RedisConfig {
+public class RedisPubSubConfig {
 
     @Bean
-    public RedisTemplate<String, Price> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Price> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> pubSubRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-
-        Jackson2JsonRedisSerializer<Price> serializer = new Jackson2JsonRedisSerializer<>(Price.class);
         serializer.setObjectMapper(mapper);
 
         template.setKeySerializer(new StringRedisSerializer());
@@ -37,14 +37,16 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisObjectTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(factory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        return template;
+    public ChannelTopic topic() {
+        return new ChannelTopic("trade-events");
     }
 
-
-
+    @Bean
+    public TradeEventPublisher tradeEventPublisher(
+            @Qualifier("pubSubRedisTemplate") RedisTemplate<String, Object> redisTemplate,
+            ChannelTopic topic) {
+        return new TradeEventPublisher(redisTemplate, topic);
+    }
 }
+
+

@@ -1,59 +1,59 @@
 package com.aquariux.crypto_trading_system.service;
-
 import com.aquariux.crypto_trading_system.dto.AggregatedPrice;
 import com.aquariux.crypto_trading_system.dto.BinancePrice;
 import com.aquariux.crypto_trading_system.dto.HoubiPrice;
-import com.aquariux.crypto_trading_system.entity.Price;
-import com.aquariux.crypto_trading_system.respository.spec.PriceRepository;
+import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.respository.PriceRepository;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.aquariux.crypto_trading_system.util.validation.CryptoPairValidator.VALID_CRYPTO_PAIRS;
 
 @Service
 public class ScheduleUpdatePriceServiceImpl {
+
     private static final Logger LOG = LoggerFactory.getLogger(ScheduleUpdatePriceServiceImpl.class);
 
-    private final PriceRepository priceRepository;
     private final PriceFetchingService priceFetchingService;
     private final PriceAggregationService priceAggregationService;
-    private final PriceCacheServiceImpl priceCacheServiceImpl;
+    private final PriceRepository priceRepository;
+    private final PriceCacheServiceImpl priceCacheService;
 
-
-    public ScheduleUpdatePriceServiceImpl(PriceRepository priceRepository,
-                                          PriceFetchingService priceFetchingService,
-                                          PriceAggregationService priceAggregationService,
-                                          PriceCacheServiceImpl priceCacheServiceImpl) {
-        this.priceRepository = priceRepository;
+    public ScheduleUpdatePriceServiceImpl(
+            PriceFetchingService priceFetchingService,
+            PriceAggregationService priceAggregationService,
+            PriceRepository priceRepository,
+            PriceCacheServiceImpl priceCacheService
+    ) {
         this.priceFetchingService = priceFetchingService;
         this.priceAggregationService = priceAggregationService;
-        this.priceCacheServiceImpl = priceCacheServiceImpl;
+        this.priceRepository = priceRepository;
+        this.priceCacheService = priceCacheService;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 10_000)
     @SchedulerLock(name = "updatePrice", lockAtMostFor = "15s", lockAtLeastFor = "10s")
     public void scheduleUpdateBestPrice() {
         BinancePrice[] binancePrices = priceFetchingService.fetchBinancePrices();
-        BinancePrice[] filteredBinancePrices = Arrays.stream(binancePrices)
-                .filter(price -> VALID_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
-                .toArray(BinancePrice[]::new);
+        HoubiPrice.HoubiTicker[] huobiPrices = priceFetchingService.fetchHuobiPrices();
 
-        HoubiPrice.HoubiTicker[] houbiPrices = priceFetchingService.fetchHuobiPrices();
-        HoubiPrice.HoubiTicker[] filteredHoubiPrice = Arrays.stream(houbiPrices)
-                .filter(price -> VALID_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
-                .toArray(HoubiPrice.HoubiTicker[]::new);
+        Map<String, AggregatedPrice> bestPrices = priceAggregationService.getBestPrices(binancePrices, huobiPrices);
 
-        Map<String, AggregatedPrice> bestPrices = priceAggregationService.getBestPrices(filteredBinancePrices, filteredHoubiPrice);
+        LOG.info("Best prices calculated: {}", bestPrices.keySet());
         List<Price> prices = priceRepository.saveAggregatedPrices(bestPrices.values());
-        prices.forEach(price -> priceCacheServiceImpl.cachePrice(price.getCryptoPair(), price));
+        LOG.info("Saved {} prices to DB", prices.size());
+        prices.forEach(price -> priceCacheService.cachePrice(price.getCryptoPair(), price));
 
-        LOG.info("Updated prices: {}", prices);
+        LOG.info("Binance prices received: {}", binancePrices.length);
+        LOG.info("Huobi prices received: {}", huobiPrices.length);
+        LOG.info("Best prices calculated: {}", bestPrices.keySet());
+        LOG.info("Prices updated and cached: {}", prices);
     }
 }
+
+
+
