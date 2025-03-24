@@ -1,4 +1,4 @@
-package com.aquariux.crypto_trading_system.model.entity;
+package com.aquariux.crypto_trading_system.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

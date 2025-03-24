@@ -1,7 +1,7 @@
 package com.aquariux.crypto_trading_system.controller;
 
 import com.aquariux.crypto_trading_system.dto.api.price.PriceResponse;
-import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.entity.Price;
 import com.aquariux.crypto_trading_system.service.contract.PriceService;
 import com.aquariux.crypto_trading_system.util.rate_limit.RateLimit;
 import com.aquariux.crypto_trading_system.util.validation.CryptoPairValid;

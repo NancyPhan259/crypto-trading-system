@@ -1,6 +1,6 @@
 package com.aquariux.crypto_trading_system.service;
 
-import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.entity.Price;
 import com.aquariux.crypto_trading_system.respository.spec.PriceRepository;
 import com.aquariux.crypto_trading_system.service.contract.PriceService;
 import org.slf4j.Logger;

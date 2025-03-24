@@ -3,7 +3,7 @@ package com.aquariux.crypto_trading_system.service;
 import com.aquariux.crypto_trading_system.dto.AggregatedPrice;
 import com.aquariux.crypto_trading_system.dto.BinancePrice;
 import com.aquariux.crypto_trading_system.dto.HoubiPrice;
-import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.entity.Price;
 import com.aquariux.crypto_trading_system.respository.spec.PriceRepository;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;

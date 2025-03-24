@@ -1,6 +1,6 @@
 package com.aquariux.crypto_trading_system.service;
 
-import com.aquariux.crypto_trading_system.model.entity.Price;
+import com.aquariux.crypto_trading_system.entity.Price;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
