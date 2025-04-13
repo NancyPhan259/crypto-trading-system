@@ -18,8 +18,7 @@ public class TradeEventSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         Trade trade = (Trade) serializer.deserialize(message.getBody());
-        LOG.info("📥 Received trade event: {}", trade);
-        // Sau này có thể xử lý logic nâng cao ở đây
+        LOG.info("Received trade event: {}", trade);
     }
 }
 

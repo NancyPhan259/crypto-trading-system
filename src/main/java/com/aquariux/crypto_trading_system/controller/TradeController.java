@@ -29,7 +29,7 @@ public class TradeController {
         return ResponseEntity.ok(trade);
     }
 
-    @RateLimit
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
     @GetMapping("/history/{userId}")
     public ResponseEntity<List<Trade>> getTradeHistory(@PathVariable String userId) {
         return ResponseEntity.ok(tradeService.getUserTradeHistory(userId));

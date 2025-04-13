@@ -18,7 +18,7 @@ public class RateLimitAspect {
 
     @Around("@annotation(rateLimit) && args(userId,..)")
     public Object enforceRateLimit(ProceedingJoinPoint joinPoint, RateLimit rateLimit, String userId) throws Throwable {
-        if (!rateLimiter.isAllowed(userId)) {
+        if (!rateLimiter.isAllowed(userId, rateLimit.timeWindowInSeconds(), rateLimit.maxRequests())) {
             throw new RuntimeException("Rate limit exceeded for user: " + userId);
         }
         return joinPoint.proceed();

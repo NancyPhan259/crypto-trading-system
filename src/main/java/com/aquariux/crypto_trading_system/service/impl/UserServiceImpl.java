@@ -1,7 +1,8 @@
-package com.aquariux.crypto_trading_system.service;
+package com.aquariux.crypto_trading_system.service.impl;
 
 import com.aquariux.crypto_trading_system.model.entity.User;
 import com.aquariux.crypto_trading_system.respository.UserRepository;
+import com.aquariux.crypto_trading_system.service.UserService;
 import org.springframework.stereotype.Service;
 
 @Service

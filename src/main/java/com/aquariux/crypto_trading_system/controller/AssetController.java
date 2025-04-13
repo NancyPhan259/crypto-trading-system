@@ -18,13 +18,13 @@ public class AssetController {
         this.assetService = assetService;
     }
 
-    @RateLimit
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
     @GetMapping("/{userId}")
     public ResponseEntity<List<Asset>> getUserAssets(@PathVariable String userId) {
         return ResponseEntity.ok(assetService.getAllAssetsForUser(userId));
     }
 
-    @RateLimit
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
     @GetMapping("/{userId}/{symbol}")
     public ResponseEntity<BigDecimal> getUserBalance(
             @PathVariable String userId,

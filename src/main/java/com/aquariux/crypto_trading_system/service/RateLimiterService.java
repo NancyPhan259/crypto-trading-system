@@ -10,14 +10,12 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class RateLimiterService {
     private final RedisTemplate<String, String> redisTemplate;
-    private final int maxRequests = 5;
-    private final long ttlSeconds = 60;
 
     public RateLimiterService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
-    public boolean isAllowed(String userId) {
+    public boolean isAllowed(String userId, long ttlSeconds, int maxRequests) {
         String minuteKey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
         String key = "rate_limit:" + userId + ":" + minuteKey;
 

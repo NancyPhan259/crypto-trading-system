@@ -1,7 +1,8 @@
-package com.aquariux.crypto_trading_system.service;
+package com.aquariux.crypto_trading_system.service.impl;
 
 import com.aquariux.crypto_trading_system.model.entity.Asset;
 import com.aquariux.crypto_trading_system.respository.AssetRepository;
+import com.aquariux.crypto_trading_system.service.AssetService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

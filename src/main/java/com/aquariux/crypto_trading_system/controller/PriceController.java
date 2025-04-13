@@ -23,7 +23,7 @@ public class PriceController {
         this.priceService = priceService;
     }
 
-    @RateLimit
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
     @GetMapping
     public ResponseEntity<List<PriceResponse>> getLatestPrices() {
         Map<String, Price> prices = priceService.getPrices();
