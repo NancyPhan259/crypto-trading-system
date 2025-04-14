@@ -5,6 +5,8 @@ INSERT INTO APP_USER (id, username) VALUES ('user2', 'Bob');
 -- ASSET ----
 INSERT INTO asset (user_id, symbol, balance) VALUES ('user1', 'BTCUSDT', 1.5);
 INSERT INTO asset (user_id, symbol, balance) VALUES ('user1', 'ETHUSDT', 5.0);
+INSERT INTO asset (user_id, symbol, balance) VALUES ('user123', 'USDT', 50000);
+
 
 -- TRADE ----
 INSERT INTO trade (id, user_id, crypto_pair, price, amount, timestamp)

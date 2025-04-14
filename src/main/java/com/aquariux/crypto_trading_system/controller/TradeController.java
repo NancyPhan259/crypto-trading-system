@@ -4,6 +4,10 @@ import com.aquariux.crypto_trading_system.dto.TradeRequest;
 import com.aquariux.crypto_trading_system.model.entity.Trade;
 import com.aquariux.crypto_trading_system.service.TradeService;
 import com.aquariux.crypto_trading_system.annotation.RateLimit;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,14 +39,15 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.getUserTradeHistory(userId));
     }
 
-//    @GetMapping("/history/{userId}")
-//    public ResponseEntity<Page<Trade>> getHistory(
-//            @PathVariable String userId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size
-//    ) {
-//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("timestamp").descending());
-//        return ResponseEntity.ok(tradeService.getHistory(userId, pageRequest));
-//    }
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
+    @GetMapping("/history/{userId}/paged")
+    public Page<Trade> getHistory(
+        @PathVariable String userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("tradeTimestamp").descending());
+        return tradeService.getUserTradeHistory(userId, pageable);
+    }
 }
 

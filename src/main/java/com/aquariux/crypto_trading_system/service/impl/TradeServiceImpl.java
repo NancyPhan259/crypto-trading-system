@@ -12,6 +12,8 @@ import com.aquariux.crypto_trading_system.respository.TradeRepository;
 import com.aquariux.crypto_trading_system.service.TradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,5 +84,11 @@ public class TradeServiceImpl implements TradeService {
     public List<Trade> getUserTradeHistory(String userId) {
         return tradeRepository.findByUserIdOrderByTimestampDesc(userId);
     }
+
+    @Override
+    public Page<Trade> getUserTradeHistory(String userId, Pageable pageable) {
+        return tradeRepository.findByUserIdOrderByTimestampDesc(userId, pageable);
+    }
+
 }
 

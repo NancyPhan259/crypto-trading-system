@@ -18,10 +18,13 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/h2-console/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
             )
-            .formLogin(withDefaults());
+            .httpBasic(withDefaults())
+            .formLogin(login -> login.disable());
 
         return http.build();
     }
 }
+
