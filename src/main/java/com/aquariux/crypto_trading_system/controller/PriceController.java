@@ -14,7 +14,7 @@ import java.util.Map;
  * REST controller to expose latest prices.
  */
 @RestController
-@RequestMapping("/api/price/latest")
+@RequestMapping("/api/price")
 public class PriceController {
 
     private final PriceService priceService;
@@ -24,7 +24,7 @@ public class PriceController {
     }
 
     @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
-    @GetMapping
+    @GetMapping("/latest")
     public ResponseEntity<List<PriceResponse>> getLatestPrices() {
         Map<String, Price> prices = priceService.getPrices();
         List<PriceResponse> priceResponses = new LinkedList<>();
@@ -37,5 +37,14 @@ public class PriceController {
             ));
         }
         return ResponseEntity.ok(priceResponses);
+    }
+
+
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
+    @GetMapping("/latest/single")
+    public ResponseEntity<Price> getLatestPrice(@RequestParam String cryptoPair) {
+        return priceService.getPrice(cryptoPair)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

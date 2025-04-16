@@ -18,7 +18,7 @@ public class PriceCacheServiceImpl implements PriceCacheService {
 
     private final RedisTemplate<String, Price> redisTemplate;
 
-    @Value("${cache.price.ttl:60}")
+    @Value("${cache.price.ttl:15}")
     private long cacheTTLInSeconds;
 
     public PriceCacheServiceImpl(RedisTemplate<String, Price> redisTemplate) {

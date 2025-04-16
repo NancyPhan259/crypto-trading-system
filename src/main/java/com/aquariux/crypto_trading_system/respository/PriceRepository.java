@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface PriceRepository extends JpaRepository<Price, Long>, CustomPriceRepository {
     Optional<Price> findTopByCryptoPairOrderByTimestampDesc(String cryptoPair);
     Optional<Price> findByCryptoPair(String cryptoPair);
+    Optional<Price> findFirstByCryptoPairOrderByTimestampDesc(String cryptoPair);
 }

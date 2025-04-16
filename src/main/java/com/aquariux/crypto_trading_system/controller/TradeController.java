@@ -22,6 +22,7 @@ public class TradeController {
         this.tradeService = tradeService;
     }
 
+    @RateLimit(timeWindowInSeconds = 60, maxRequests = 5)
     @PostMapping("/execute")
     public ResponseEntity<Trade> executeTrade(@RequestBody TradeRequest request) {
         Trade trade = tradeService.executeTrade(
@@ -46,7 +47,7 @@ public class TradeController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "5") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("tradeTimestamp").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         return tradeService.getUserTradeHistory(userId, pageable);
     }
 }

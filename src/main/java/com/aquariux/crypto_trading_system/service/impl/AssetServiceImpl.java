@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -34,7 +36,22 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public List<Asset> getAllAssetsForUser(String userId) {
-        return assetRepository.findAllByUserId(userId);
+        List<Asset> assets =  assetRepository.findAllByUserId(userId);
+
+         return assets.stream()
+        .collect(Collectors.groupingBy(
+            Asset::getSymbol,
+            Collectors.reducing(
+                (a1, a2) -> {
+                    a1.setBalance(a1.getBalance().add(a2.getBalance()));
+                    return a1;
+                }
+            )
+        ))
+        .values().stream()
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList());
     }
 }
 

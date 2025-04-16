@@ -9,6 +9,7 @@ import com.aquariux.crypto_trading_system.respository.AssetHistoryRepository;
 import com.aquariux.crypto_trading_system.respository.AssetRepository;
 import com.aquariux.crypto_trading_system.respository.PriceRepository;
 import com.aquariux.crypto_trading_system.respository.TradeRepository;
+import com.aquariux.crypto_trading_system.service.PriceCacheService;
 import com.aquariux.crypto_trading_system.service.TradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +31,30 @@ public class TradeServiceImpl implements TradeService {
     private final AssetRepository assetRepository;
     private final PriceRepository priceRepository;
     private final AssetHistoryRepository assetHistoryRepository;
+    private final PriceCacheService priceCacheService;
 
-    public TradeServiceImpl(TradeRepository tradeRepository, AssetRepository assetRepository, PriceRepository priceRepository, AssetHistoryRepository assetHistoryRepository) {
+    public TradeServiceImpl(TradeRepository tradeRepository, AssetRepository assetRepository, PriceRepository priceRepository, AssetHistoryRepository assetHistoryRepository, PriceCacheService priceCacheService) {
         this.tradeRepository = tradeRepository;
         this.assetRepository = assetRepository;
         this.priceRepository = priceRepository;
         this.assetHistoryRepository = assetHistoryRepository;
+        this.priceCacheService = priceCacheService;
     }
 
     @Override
     @Transactional
     public Trade executeTrade(String userId, String cryptoPair, BigDecimal quantity, TradeSide side) {
-        Price price = priceRepository.findByCryptoPair(cryptoPair)
-                .orElseThrow(() -> new RuntimeException("No price available for: " + cryptoPair));
+
+        Price price = priceCacheService.getCachedPrice(cryptoPair)
+                .orElseGet(() -> {
+            return priceRepository.findTopByCryptoPairOrderByTimestampDesc(cryptoPair)
+                .map(latestPrice -> new Price(
+                    latestPrice.getCryptoPair(),
+                    latestPrice.getBidPrice(),
+                    latestPrice.getAskPrice(), ZonedDateTime.now()
+                ))
+                .orElseThrow(() -> new RuntimeException("No aggregated price available for: " + cryptoPair));
+        });
 
         BigDecimal tradePrice = side == TradeSide.BUY ? price.getAskPrice() : price.getBidPrice();
         BigDecimal totalAmount = tradePrice.multiply(quantity);

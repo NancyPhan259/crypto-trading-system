@@ -23,7 +23,13 @@ public class PriceServiceImpl implements PriceService {
     @Override
     public Map<String, Price> getPrices() {
         return priceRepository.findAll().stream()
-                .collect(Collectors.toMap(Price::getCryptoPair, p -> p, (p1, p2) -> p1));
+        .collect(Collectors.groupingBy(
+            Price::getCryptoPair,
+            Collectors.collectingAndThen(
+                Collectors.maxBy(Comparator.comparing(Price::getTimestamp)),
+                Optional::get
+            )
+        ));
     }
 
     @Override
